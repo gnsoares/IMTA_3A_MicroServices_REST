@@ -75,7 +75,7 @@ def create_movie(movieid):
             return make_response(jsonify({'error': 'movie ID already exists'}),
                                  409)
 
-    movies.append(req)
+    movies.append(req | {'id': movieid})
     res = make_response(jsonify({'message': 'movie added'}), 200)
     return res
 
@@ -84,7 +84,7 @@ def create_movie(movieid):
 def update_movie_rating(movieid, rate):
     for movie in movies:
         if str(movie['id']) == str(movieid):
-            movie['rating'] = int(rate)
+            movie['rating'] = float(rate)
             res = make_response(jsonify(movie), 200)
             return res
 

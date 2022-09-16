@@ -18,7 +18,7 @@ def get_schedule():
     return make_response(jsonify(schedule), 200)
 
 
-@app.route('/showmovies/{date}', methods=['GET'])
+@app.route('/showmovies/<date>', methods=['GET'])
 def get_movies_bydate(date):
     for schedule_date in schedule:
         if schedule_date['date'] == date:
