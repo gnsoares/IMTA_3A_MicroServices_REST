@@ -34,31 +34,31 @@ paths:
               schema:
                 type: string
                 example: "<h1 style='color:blue'>Welcome to the User service!</h1>"
-  /json:
+  /users:
     get:
       tags:
         - developers
-      summary: get the full JSON database
-      operationId: get_json
+      summary: get the full users database
+      operationId: get_users
       description: |
         Nothing to do
       responses:
         "200":
-          description: full JSON
+          description: all users
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AllUsers"
-  /Users/{Userid}:
+  /users/{userid}:
     get:
       tags:
         - developers
-      summary: get the User by its id
-      operationId: get_User_byid
+      summary: get the user by its id
+      operationId: get_user_by_id
       description: |
-        By passing in the appropriate options, you can get info of a User
+        By passing in the appropriate options, you can get info of a user
       parameters:
-        - name: Userid
+        - name: userid
           in: path
           required: true
           description: User ID.
@@ -73,16 +73,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserItem"
-        "400":
-          description: bad input parameter
+        "404":
+          description: User not found
     post:
       tags:
         - admins
-      summary: add a User item
-      operationId: create_User
-      description: Adds a User to the system
+      summary: add a user item
+      operationId: create_user
+      description: Adds a user to the system
       parameters:
-        - name: Userid
+        - name: userid
           in: path
           required: true
           description: User ID.
@@ -91,7 +91,7 @@ paths:
             minimum: 1
             maximum: 1
       responses:
-        "200":
+        "201":
           description: User created
           content:
             application/json:
@@ -103,69 +103,89 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserItem"
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: Peter Curley
         description: Inventory item to add
-  /Users_filtered:
-    get:
+    put:
       tags:
-        - developers
-      summary: get all Users equal or above a rating
-      operationId: get_Users_filtered
-      description: |
-        By passing a rating as a query parameter, you can find Users equal or above a rating
+        - admins
+      summary: update a user item
+      operationId: create_user
+      description: Adds a user to the system
       parameters:
-        - in: query
-          name: rating
-          description: rating threshold
+        - name: userid
+          in: path
           required: true
-          schema:
-            type: number
-            min: 0
-            max: 10
-      responses:
-        "200":
-          description: User items with rating equal or above threshold
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AllUsers"
-        "400":
-          description: bad rating parameter
-  /titles:
-    get:
-      tags:
-        - developers
-      summary: get the User by its title
-      operationId: get_User_bytitle
-      description: |
-        By passing in the appropriate options, you can get User info
-      parameters:
-        - in: query
-          name: title
-          description: pass a title
-          required: true
+          description: User ID.
           schema:
             type: string
             minimum: 1
             maximum: 1
       responses:
         "200":
-          description: User item
+          description: User updated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserItem"
-        "400":
-          description: bad input parameter
+        "404":
+          description: User not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Peter Curley
+                last_active:
+                  type: integer
+                  example: 1360031222
+        description: Inventory item to update
+  
+  /users/{userid}/bookings:
+    get:
+      tags:
+        - developers
+      summary: get the user bookings by their id
+      operationId: get_user_bookings_by_id
+      description: |
+        By passing in the appropriate options, you can get info of a user
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          description: User ID.
+          schema:
+            type: string
+            minimum: 1
+            maximum: 1
+      responses:
+        "200":
+          description: User description
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MovieItem"
+        "404":
+          description: User not found
 
 components:
   schemas:
     AllUsers:
       type: object
       required:
-        - Users
+        - users
       properties:
-        Users:
+        users:
           type: array
           items:
             type: object
@@ -173,20 +193,38 @@ components:
     UserItem:
       type: object
       required:
-        - title
-        - rating
-        - director
         - id
+        - name
+        - last_active
+      properties:
+        id:
+          type: string
+          example: peter_curley
+        name:
+          type: string
+          example: Peter Curley
+        last_active:
+          type: integer
+          example: 1360031222
+    MovieItem:
+      required:
+      - director
+      - rating
+      - title
+      - dates
+      type: object
       properties:
         title:
           type: string
           example: The Martian
         rating:
-          type: integer
-          example: 7
+          type: number
+          example: 7.4
         director:
           type: string
           example: Paul McGuigan
-        id:
-          type: string
-          example: 39ab85e5-5e8e-4dc5-afea-65dc368bd7ab
+        dates:
+          type: array
+          items:
+            type: string
+            example: "20151205"
