@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 import requests
 import json
 from werkzeug.exceptions import NotFound
+from urllib.parse import urlunparse
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ def get_json():
     return make_response(jsonify(bookings), 200)
 
 
-@app.route('/bookings/{userid}', methods=['GET'])
+@app.route('/bookings/<userid>', methods=['GET'])
 def get_booking_for_user(userid):
     for booking in bookings:
         if booking['userid'] == userid:
@@ -32,12 +33,19 @@ def get_booking_for_user(userid):
     return make_response(jsonify({'error': 'bad input parameter'}), 400)
 
 
-@app.route('/bookings/{userid}', methods=['POST'])
+@app.route('/bookings/<userid>', methods=['POST'])
 def add_booking_byuser(userid):
     # get body
     body = request.get_json()
     date = body['date']
     movieid = body['movieid']
+
+    # check if movie is available at this date
+    response = requests.get(
+        urlunparse(('http', f'{SHOWTIME["host"]}:{SHOWTIME["port"]}',
+                    f'showmovies/{date}', '', '', ''))).json()
+    if movieid not in response['movies']:
+        return make_response({'error': 'movie not available at this date'}, 400)
 
     for booking in bookings:
 
