@@ -5,17 +5,30 @@ from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 
-PORT = 3203
-HOST = '0.0.0.0'
+BOOKING = {
+    'host': 'localhost',
+    'port': 3201,
+}
+MOVIE = {
+    'host': 'localhost',
+    'port': 3200,
+}
 
 with open('{}/databases/users.json'.format("."), "r") as jsf:
-   users = json.load(jsf)["users"]
+    users = json.load(jsf)["users"]
+
 
 @app.route("/", methods=['GET'])
 def home():
-   return "<h1 style='color:blue'>Welcome to the User service!</h1>"
+    return "<h1 style='color:blue'>Welcome to the User service!</h1>"
 
 
 if __name__ == "__main__":
-   print("Server running in port %s"%(PORT))
-   app.run(host=HOST, port=PORT)
+    from argparse import ArgumentParser
+    arg_parser = ArgumentParser()
+    arg_parser.add_argument('-H', '--host', required=False)
+    arg_parser.add_argument('-p', '--port', type=int, required=True)
+    args = arg_parser.parse_args()
+
+    print('Server running in port %s' % (args.port))
+    app.run(host=args.host, port=args.port)

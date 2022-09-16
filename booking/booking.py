@@ -5,17 +5,86 @@ from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 
-PORT = 3201
-HOST = '0.0.0.0'
+SHOWTIME = {
+    'host': 'localhost',
+    'port': 3202,
+}
 
-with open('{}/databases/bookings.json'.format("."), "r") as jsf:
-   bookings = json.load(jsf)["bookings"]
+with open('{}/databases/bookings.json'.format('.'), 'r') as jsf:
+    bookings = json.load(jsf)['bookings']
 
-@app.route("/", methods=['GET'])
+
+@app.route('/', methods=['GET'])
 def home():
-   return "<h1 style='color:blue'>Welcome to the Booking service!</h1>"
+    return '<h1 style=\'color:blue\'>Welcome to the Booking service!</h1>'
 
 
-if __name__ == "__main__":
-   print("Server running in port %s"%(PORT))
-   app.run(host=HOST, port=PORT)
+@app.route('/bookings', methods=['GET'])
+def get_json():
+    return make_response(jsonify(bookings), 200)
+
+
+@app.route('/bookings/{userid}', methods=['GET'])
+def get_booking_for_user(userid):
+    for booking in bookings:
+        if booking['userid'] == userid:
+            return make_response(jsonify(booking), 200)
+    return make_response(jsonify({'error': 'bad input parameter'}), 400)
+
+
+@app.route('/bookings/{userid}', methods=['POST'])
+def add_booking_byuser(userid):
+    # get body
+    body = request.get_json()
+    date = body['date']
+    movieid = body['movieid']
+
+    for booking in bookings:
+
+        # there are already movies for this user
+        if booking['userid'] == userid:
+            date_objs = booking['dates']
+            for date_obj in date_objs:
+
+                # there are already movies in this date
+                if date_obj['date'] == date:
+
+                    # movie already in this date for this user
+                    if movieid in date_obj['movies']:
+                        return make_response(
+                            jsonify({
+                                'error':
+                                    'an existing item already exists with this id'
+                            }), 409)
+
+                    # add movie to this date
+                    date_obj['movies'].append(movieid)
+                    return make_response(jsonify(booking), 200)
+
+            # add new date to user
+            date_objs.append({
+                'date': date,
+                'movies': [movieid],
+            })
+            return make_response(jsonify(booking), 200)
+
+    # add new user
+    bookings.append({
+        'userid': userid,
+        'dates': [{
+            'date': date,
+            'movies': [movieid],
+        }],
+    })
+    return make_response(jsonify(bookings[-1]), 200)
+
+
+if __name__ == '__main__':
+    from argparse import ArgumentParser
+    arg_parser = ArgumentParser()
+    arg_parser.add_argument('-H', '--host', required=False)
+    arg_parser.add_argument('-p', '--port', type=int, required=True)
+    args = arg_parser.parse_args()
+
+    print('Server running in port %s' % (args.port))
+    app.run(host=args.host, port=args.port)

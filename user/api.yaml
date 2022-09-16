@@ -1,0 +1,192 @@
+openapi: 3.0.0
+servers: []
+
+info:
+  description: This is the API of the User service
+  version: "1.0.0"
+  title: User API
+  contact:
+    email: helene.coullon@imt-atlantique.fr
+  license:
+    name: GPL v3
+    url: "https://www.gnu.org/licenses/gpl-3.0.en.html"
+
+tags:
+  - name: admins
+    description: Secured Admin-only calls
+  - name: developers
+    description: Operations available to regular developers
+
+paths:
+  /:
+    get:
+      tags:
+        - developers
+      summary: home page of the service
+      operationId: home
+      description: |
+        Nothing to do
+      responses:
+        "200":
+          description: welcome message
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "<h1 style='color:blue'>Welcome to the User service!</h1>"
+  /json:
+    get:
+      tags:
+        - developers
+      summary: get the full JSON database
+      operationId: get_json
+      description: |
+        Nothing to do
+      responses:
+        "200":
+          description: full JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllUsers"
+  /Users/{Userid}:
+    get:
+      tags:
+        - developers
+      summary: get the User by its id
+      operationId: get_User_byid
+      description: |
+        By passing in the appropriate options, you can get info of a User
+      parameters:
+        - name: Userid
+          in: path
+          required: true
+          description: User ID.
+          schema:
+            type: string
+            minimum: 1
+            maximum: 1
+      responses:
+        "200":
+          description: User description
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserItem"
+        "400":
+          description: bad input parameter
+    post:
+      tags:
+        - admins
+      summary: add a User item
+      operationId: create_User
+      description: Adds a User to the system
+      parameters:
+        - name: Userid
+          in: path
+          required: true
+          description: User ID.
+          schema:
+            type: string
+            minimum: 1
+            maximum: 1
+      responses:
+        "200":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserItem"
+        "409":
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserItem"
+        description: Inventory item to add
+  /Users_filtered:
+    get:
+      tags:
+        - developers
+      summary: get all Users equal or above a rating
+      operationId: get_Users_filtered
+      description: |
+        By passing a rating as a query parameter, you can find Users equal or above a rating
+      parameters:
+        - in: query
+          name: rating
+          description: rating threshold
+          required: true
+          schema:
+            type: number
+            min: 0
+            max: 10
+      responses:
+        "200":
+          description: User items with rating equal or above threshold
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllUsers"
+        "400":
+          description: bad rating parameter
+  /titles:
+    get:
+      tags:
+        - developers
+      summary: get the User by its title
+      operationId: get_User_bytitle
+      description: |
+        By passing in the appropriate options, you can get User info
+      parameters:
+        - in: query
+          name: title
+          description: pass a title
+          required: true
+          schema:
+            type: string
+            minimum: 1
+            maximum: 1
+      responses:
+        "200":
+          description: User item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserItem"
+        "400":
+          description: bad input parameter
+
+components:
+  schemas:
+    AllUsers:
+      type: object
+      required:
+        - Users
+      properties:
+        Users:
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/UserItem"
+    UserItem:
+      type: object
+      required:
+        - title
+        - rating
+        - director
+        - id
+      properties:
+        title:
+          type: string
+          example: The Martian
+        rating:
+          type: integer
+          example: 7
+        director:
+          type: string
+          example: Paul McGuigan
+        id:
+          type: string
+          example: 39ab85e5-5e8e-4dc5-afea-65dc368bd7ab
