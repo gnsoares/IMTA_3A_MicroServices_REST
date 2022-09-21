@@ -3,4 +3,4 @@ WORKDIR /app
 COPY requirements.txt /app
 RUN pip install -r requirements.txt
 ADD . /app/
-CMD ["python","-u","movie.py", "-p", "3200"]
+CMD ["python","-u","movie.py", "--host", "0.0.0.0", "--port", "3200"]
