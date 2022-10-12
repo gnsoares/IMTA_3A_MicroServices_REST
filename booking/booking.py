@@ -7,7 +7,7 @@ from urllib.parse import urlunparse
 app = Flask(__name__)
 
 SHOWTIME = {
-    'host': 'localhost',
+    'host': 'showtime',
     'port': 3202,
 }
 

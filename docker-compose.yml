@@ -16,4 +16,3 @@ services:
     build: ./booking/
     ports:
         - "3201:3201"
-

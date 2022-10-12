@@ -9,11 +9,11 @@ from urllib.parse import urlunparse
 app = Flask(__name__)
 
 BOOKING = {
-    'host': 'localhost',
+    'host': 'booking',
     'port': 3201,
 }
 MOVIE = {
-    'host': 'localhost',
+    'host': 'movie',
     'port': 3200,
 }
 
