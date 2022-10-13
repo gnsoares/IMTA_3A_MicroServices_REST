@@ -1,4 +1,4 @@
-# UE-AD-A1-REST
+# UE-AD-A1-REST (TP GREEN)
 
 The project is composed of 4 services each one with its own folder. The services are:
 * `movie`
@@ -31,3 +31,4 @@ python3.10 ${SERVICE}.py [-H HOST] -p PORT
 ```
 docker-compose up [--build] ${SERVICE}
 ```
+
